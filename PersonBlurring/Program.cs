@@ -15,7 +15,7 @@ namespace PersonBlurring
                 a.Cancel = true;
                 cts.Cancel();
             };
-            CascadeClassifier cascade = new CascadeClassifier(@"C:\Users\MatthewM\Documents\PersonBlurring\PersonBlurring\haarcascade_frontalface_alt.xml");
+            CascadeClassifier cascade = new CascadeClassifier(@"C:\Users\MatthewM\Documents\IdentityBlur\PersonBlurring\haarcascade_frontalface_alt.xml");
             Console.WriteLine("Haar Loaded");
             VideoCapture captureInstance = new VideoCapture(0);
             while (!captureInstance.IsOpened())
@@ -25,10 +25,10 @@ namespace PersonBlurring
                 Thread.Sleep(500);
             }
             Console.WriteLine("Camera Opened");
+            Mat frame = new Mat();
+            Mat gray = new Mat();
             while (!cts.IsCancellationRequested)
             {
-                Mat frame = new Mat();
-                Mat gray = new Mat();
                 captureInstance.Read(frame);
                 if (frame.Empty())
                     break;
@@ -42,7 +42,8 @@ namespace PersonBlurring
                     );
                 foreach (Rect rect in faces)
                 {
-                    Cv2.Rectangle(frame, rect, new Scalar(255, 255, 255), -1);
+                    Mat roi = new Mat(frame, new Rect((int)(rect.X - rect.Width*.1), (int)(rect.Y - rect.Height * .1), (int)(rect.Width*1.2), (int)(rect.Height * 1.2)));
+                    Cv2.GaussianBlur(roi, roi, new Size(101, 101), 0);
                 }
                 Cv2.ImShow("Feed", frame);
                 Cv2.WaitKey(1);
